@@ -1,0 +1,16 @@
+{
+  "name": "ts-multiplayer-snake-game",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "format": "prettier --write ./src/"
+  },
+  "devDependencies": {
+    "prettier": "2.6.2",
+    "typescript": "^4.5.4",
+    "vite": "^2.9.0"
+  }
+}
