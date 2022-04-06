@@ -2,12 +2,13 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=2.0" />
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite App</title>
+    <title>Snake :)</title>
+    <script type="module" src="./../src/index.ts"></script>
   </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
+  <body onload="createNewGame()">
+    <canvas id="game" class="snake-container">Your Browser is not supported!</canvas>
+    <button onclick="createNewGame()">New Game</button>
   </body>
 </html>
