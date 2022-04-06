@@ -3,7 +3,8 @@ import GameContext from "./GameContext";
 import Snake from "./Snake";
 import { Direction } from "./types";
 
-const MS_PER_UPDATE = 150;
+const MS_PER_UPDATE = 200;
+let temp = 0;
 
 export default class SnakeGame {
   // game options
@@ -18,11 +19,10 @@ export default class SnakeGame {
   public scale: number;
 
   // frame calculation
-  private elapsedStartTime = 0;
+  private startTime = 0;
   private previousTime = window.performance.now();
   private lag = 0.0;
-  private acc = 0;
-  private countedFrames = 0;
+  private framesCounter = 0;
   private avgFPS = 0;
 
   // entitys
@@ -68,8 +68,7 @@ export default class SnakeGame {
     );
 
     // start animation / hook into main-loop
-    this.drawSnake();
-    this.nextFrame(0);
+    window.requestAnimationFrame( this.nextFrame)
   }
 
   private keyHandler(event: KeyboardEvent) {
@@ -110,7 +109,7 @@ export default class SnakeGame {
   }
 
   private drawFPS(timeStart: number) {
-    this.avgFPS = this.countedFrames / (timeStart / 1000);
+    this.avgFPS = this.framesCounter / (timeStart / 1000);
     // if(avgFPS > 2000000) {
     //   avgFPS = 0
     // }
@@ -122,54 +121,44 @@ export default class SnakeGame {
     this.ctx.fillText(this.avgFPS.toFixed(0), 0, 0);
   }
 
-  private nextFrame(ts: number) {
-    const cid = requestAnimationFrame(this.nextFrame);
-
-    const t = window.performance.now();
-    if(this.elapsedStartTime === 0 ) {
-      this.elapsedStartTime = t;
-    }
+  private nextFrame() {
+    const cancelId = requestAnimationFrame(this.nextFrame);
 
     const currentTime = window.performance.now();
-    const elapsedTime = currentTime - this.previousTime;
+    if(this.startTime === 0 ) {
+      this.startTime = currentTime;
+      this.previousTime = currentTime
+    }
+
+    const elapsedTime = currentTime - this.previousTime; // time elapsed between last frame and this, delta frame time
+    const totalElapsedTime = currentTime - this.startTime; // time passed in ms since game start
     this.lag += elapsedTime;
 
 
 
+    // console.log("Frame", this.framesCounter, "iteration", temp);
     while (this.lag >= MS_PER_UPDATE) {
+      // console.log("Game update")
       this.snake.update(this.world);
       this.lag -= MS_PER_UPDATE;
     }
 
     if (this.gCtx.isGameEnded()) {
       console.log("Game Ended!");
-      cancelAnimationFrame(cid);
+      cancelAnimationFrame(cancelId);
       this.endGame();
       return;
     }
 
-    this.render(t - this.elapsedStartTime);
+    this.render(totalElapsedTime);
 
-    /// if (this.acc >= 400) {
-    // if (this.countedFrames % this.snake.getSpeed() === 0) {
-      // if (this.snake.isBorderCollision(this.cellsX, this.cellsY)) {
-      //   this.endGame();
-      // }
-      // this.drawSnake();
-      // this.drawFPS(timeElapsed);
-      /// drawFPS(ts)
-      // this.acc = 0;
-    // }
-
-    /// this.previousTs = ts;
-
-    ++this.countedFrames;
+    ++this.framesCounter;
     this.previousTime = currentTime;
   }
 
-  private render(timeStart: number) {
+  private render(totalElapsedTime: number) {
     this.drawSnake();
-    this.drawFPS(timeStart);
+    this.drawFPS(totalElapsedTime);
   }
 
   public endGame() {
