@@ -2,6 +2,13 @@ import GameContext from "./GameContext";
 import World from "./World";
 import { Direction } from "./types";
 
+const iligalDirectionTurns = new Map([
+  [Direction.UP, Direction.DOWN],
+  [Direction.LEFT, Direction.RIGHT],
+  [Direction.DOWN, Direction.UP],
+  [Direction.RIGHT, Direction.LEFT]
+])
+
 export default class Snake {
   private ctx: GameContext;
   // entity properties
@@ -19,7 +26,14 @@ export default class Snake {
   }
 
   public setDirection(direction: Direction) {
+    // return false if update was denied because of forbiden turn
+    // prevent U-turns movements
+    if(this.direction === iligalDirectionTurns.get(direction)) {
+      return false;
+    }
+
     this.direction = direction;
+    return true;
   }
 
   public getBody() {

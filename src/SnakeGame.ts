@@ -2,14 +2,22 @@ import World from "./World";
 import GameContext from "./GameContext";
 import Snake from "./Snake";
 import { Direction } from "./types";
+import { Queue } from "./Queue";
 
 const MS_PER_UPDATE = 200;
 let temp = 0;
+
+interface GameInputEvent {
+  key: "W" | "A" | "S" | "D";
+  type: "move";
+  direction: Direction;
+}
 
 export default class SnakeGame {
   // game options
   private world: World;
   private gCtx: GameContext;
+  private readonly inputQueue: Queue<GameInputEvent>;
   private ctx: CanvasRenderingContext2D;
   private cellSize: number;
   private cellsX: number;
@@ -41,6 +49,7 @@ export default class SnakeGame {
     this.width = width * cellSize;
     this.height = height * cellSize;
     this.keyHandler = this.keyHandler.bind(this);
+    this.inputQueue = new Queue<GameInputEvent>();
     this.nextFrame = this.nextFrame.bind(this);
 
     window.addEventListener("keydown", this.keyHandler);
@@ -75,16 +84,16 @@ export default class SnakeGame {
     event.preventDefault();
     switch (event.code) {
       case "KeyW":
-        this.snake.setDirection(Direction.UP);
+        this.inputQueue.enqueue({key: "W", type: "move", direction: Direction.UP})
         break;
       case "KeyA":
-        this.snake.setDirection(Direction.LEFT);
+        this.inputQueue.enqueue({key: "A", type: "move", direction: Direction.LEFT})
         break;
       case "KeyS":
-        this.snake.setDirection(Direction.DOWN);
+        this.inputQueue.enqueue({key: "S", type: "move", direction: Direction.DOWN})
         break;
       case "KeyD":
-        this.snake.setDirection(Direction.RIGHT);
+        this.inputQueue.enqueue({key: "D", type: "move", direction: Direction.RIGHT})
         break;
     }
   }
@@ -139,6 +148,10 @@ export default class SnakeGame {
     // console.log("Frame", this.framesCounter, "iteration", temp);
     while (this.lag >= MS_PER_UPDATE) {
       // console.log("Game update")
+      const input = this.inputQueue.dequeue();
+      if(input && input.type === "move") {
+        this.snake.setDirection(input.direction);
+      }
       this.snake.update(this.world);
       this.lag -= MS_PER_UPDATE;
     }
