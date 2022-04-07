@@ -1,4 +1,4 @@
-import GameContext from "./GameContext";
+import {GameContext, GameStatus} from "./GameContext";
 import World from "./World";
 import { Direction } from "./types";
 
@@ -14,7 +14,8 @@ export default class Snake {
   // entity properties
   private body: number[][]; // position of snake body in grid cells
   private direction: Direction | null = null;
-  private speed = 15;
+  private moveTicker = 0; // calculate movement as accululator
+  private speed = 0; // 1 = 1 cell/second; 2 = 2 cells/second
 
   constructor(ctx: GameContext, x: number, y: number) {
     this.ctx = ctx;
@@ -49,6 +50,7 @@ export default class Snake {
   }
 
   private move() {
+
     let head: Array<number>;
     if (this.direction === null) {
       // user made no input
@@ -92,10 +94,24 @@ export default class Snake {
   // }
 
   public update(world: World) {
-    this.move();
+    //this.timePassed += elapsedTime;
+    // if(Math.trunc(this.timePassed / 10) % 10)
+
+    // this.timePassed += elapsedTime;
+    // if(this.timePassed >= 100) {
+    //   this.move(elapsedTime);
+    //   this.timePassed = 0;
+    // }
+
+    this.moveTicker += MS_PER_UPDATE * this.speed;
+    if(this.moveTicker >= 1000) {
+      this.move();
+      this.moveTicker = 0;
+    }
+
     const head = this.getHead();
     if(!world.resolveCollision(head.x, head.y)) {
-      this.ctx.endGame();
+      this.ctx.setStatus(GameStatus.ENDED);
     };
   }
 }

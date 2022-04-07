@@ -1,12 +1,19 @@
-export default class GameContext {
-  private ended = false;
-  constructor() {}
+export enum GameStatus {
+  CREATED,
+  RUNNING,
+  ENDED,
+  FREEZE
+}
 
-  public endGame() {
-    this.ended = true;
+export class GameContext {
+  private gameStatus: GameStatus = GameStatus.CREATED;
+
+  public setStatus(status: GameStatus) {
+    this.gameStatus = status;
   }
 
-  public isGameEnded() {
-    return this.ended;
+  public getStatus() {
+    return this.gameStatus;
   }
+
 }

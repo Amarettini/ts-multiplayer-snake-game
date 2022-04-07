@@ -1,17 +1,25 @@
 import World from "./World";
-import GameContext from "./GameContext";
+import {GameContext, GameStatus} from "./GameContext";
 import Snake from "./Snake";
 import { Direction } from "./types";
 import { Queue } from "./Queue";
 
-const MS_PER_UPDATE = 200;
+window.MS_PER_UPDATE = 34;
 let temp = 0;
 
-interface GameInputEvent {
+interface MoveInput {
   key: "W" | "A" | "S" | "D";
   type: "move";
   direction: Direction;
 }
+
+interface UIInput {
+  key: "ENTER";
+  type: "ui";
+  action: () => boolean;
+}
+
+type GameInputEvent = MoveInput | UIInput
 
 export default class SnakeGame {
   // game options
@@ -75,8 +83,8 @@ export default class SnakeGame {
       Math.floor(this.cellsX / 2),
       Math.floor(this.cellsY / 2)
     );
-
     // start animation / hook into main-loop
+    this.gCtx.setStatus(GameStatus.RUNNING);
     window.requestAnimationFrame( this.nextFrame)
   }
 
@@ -84,16 +92,19 @@ export default class SnakeGame {
     event.preventDefault();
     switch (event.code) {
       case "KeyW":
-        this.inputQueue.enqueue({key: "W", type: "move", direction: Direction.UP})
+        this.inputQueue.enqueue({type: "move",key: "W",  direction: Direction.UP})
         break;
       case "KeyA":
-        this.inputQueue.enqueue({key: "A", type: "move", direction: Direction.LEFT})
+        this.inputQueue.enqueue({type: "move",key: "A",  direction: Direction.LEFT})
         break;
       case "KeyS":
-        this.inputQueue.enqueue({key: "S", type: "move", direction: Direction.DOWN})
+        this.inputQueue.enqueue({type: "move",key: "S",  direction: Direction.DOWN})
         break;
       case "KeyD":
-        this.inputQueue.enqueue({key: "D", type: "move", direction: Direction.RIGHT})
+        this.inputQueue.enqueue({type: "move",key: "D",  direction: Direction.RIGHT})
+        break;
+      case "Enter":
+        // this.inputQueue.enqueue({type: "ui", key: "ENTER", action: this.holdGame})
         break;
     }
   }
@@ -148,15 +159,19 @@ export default class SnakeGame {
     // console.log("Frame", this.framesCounter, "iteration", temp);
     while (this.lag >= MS_PER_UPDATE) {
       // console.log("Game update")
+
+      // console.log("Frame", this.framesCounter, "at", new Date().getSeconds(), new Date().getMilliseconds(), "diff", elapsedTime, MS_PER_UPDATE)
+
       const input = this.inputQueue.dequeue();
       if(input && input.type === "move") {
         this.snake.setDirection(input.direction);
       }
+
       this.snake.update(this.world);
       this.lag -= MS_PER_UPDATE;
     }
 
-    if (this.gCtx.isGameEnded()) {
+    if (this.gCtx.getStatus() === GameStatus.ENDED) {
       console.log("Game Ended!");
       cancelAnimationFrame(cancelId);
       this.endGame();
@@ -172,6 +187,10 @@ export default class SnakeGame {
   private render(totalElapsedTime: number) {
     this.drawSnake();
     this.drawFPS(totalElapsedTime);
+  }
+
+  public freezeGame() {
+    this.gCtx.setStatus(GameStatus.FREEZE);
   }
 
   public endGame() {
