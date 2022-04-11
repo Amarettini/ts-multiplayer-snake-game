@@ -14,8 +14,13 @@ export default class Snake {
   // entity properties
   private body: number[][]; // position of snake body in grid cells
   private direction: Direction | null = null;
-  private moveTicker = 0; // calculate movement as accululator
-  private speed = 0; // 1 = 1 cell/second; 2 = 2 cells/second
+  private moveTicker = 0; // calculate movement as accululator, on which frame (-interval) it should move
+  private speedTicker = 0; // on which frame the snake's seepd should increase
+  private speedGrowRate = 1; // how fast the speed should increase
+  private speed = 1; // 1 = 1 cell/second; 2 = 2 cells/second
+
+  // private growTicker = 0;
+  // private growRate = 0.3; // 1 = 1 body/second
 
   constructor(ctx: GameContext, x: number, y: number) {
     this.ctx = ctx;
@@ -84,7 +89,7 @@ export default class Snake {
   }
 
   private grow() {
-    console.log("*Grow snake*");
+    console.log("*Grow snake*", new Date().toISOString());
     const tailBodyX = this.body[this.body.length - 1][0];
     const tailBodyY = this.body[this.body.length - 1][1];
     this.body.push([tailBodyX, tailBodyY]);
@@ -94,6 +99,9 @@ export default class Snake {
   // }
 
   public update(world: World) {
+    // if(!this.direction) {
+    //   return
+    // }
     //this.timePassed += elapsedTime;
     // if(Math.trunc(this.timePassed / 10) % 10)
 
@@ -102,6 +110,14 @@ export default class Snake {
     //   this.move(elapsedTime);
     //   this.timePassed = 0;
     // }
+
+    // this.speedTicker += MS_PER_UPDATE * this.speedGrowRate;
+    // if(this.speedTicker >= 1000) {
+    //   console.log("+speed", this.speed)
+    //   this.speed += 1;
+    //   this.speedTicker= 0;
+    // }
+
 
     this.moveTicker += MS_PER_UPDATE * this.speed;
     if(this.moveTicker >= 1000) {

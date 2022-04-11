@@ -1,10 +1,12 @@
 import World from "./World";
-import {GameContext, GameStatus} from "./GameContext";
+import { GameContext, GameStatus } from "./GameContext";
 import Snake from "./Snake";
 import { Direction } from "./types";
 import { Queue } from "./Queue";
+import { GameDebugger } from "./GameDebugger";
 
 window.MS_PER_UPDATE = 34;
+window.GAME_DEBUGGER = new GameDebugger();
 let temp = 0;
 
 interface MoveInput {
@@ -19,7 +21,12 @@ interface UIInput {
   action: () => boolean;
 }
 
-type GameInputEvent = MoveInput | UIInput
+declare global {
+  var moveInput: MoveInput;
+  // typeof getFormattedTime;
+}
+
+type GameInputEvent = MoveInput | UIInput;
 
 export default class SnakeGame {
   // game options
@@ -33,6 +40,8 @@ export default class SnakeGame {
   public width: number;
   public height: number;
   public scale: number;
+  private gameStartAt: number | null = null;
+  private gameEndedAt: number | null = null;
 
   // frame calculation
   private startTime = 0;
@@ -42,14 +51,9 @@ export default class SnakeGame {
   private avgFPS = 0;
 
   // entitys
-  public snake: Snake;
+  public snakes: Snake[] = [];
 
-  constructor(
-    canvasEl: HTMLCanvasElement,
-    width: number,
-    height: number,
-    cellSize: number
-  ) {
+  constructor(canvasEl: HTMLCanvasElement, width: number, height: number, cellSize: number) {
     // set up game display and options
     this.cellSize = cellSize;
     this.cellsX = width;
@@ -78,30 +82,32 @@ export default class SnakeGame {
 
     this.gCtx = new GameContext();
     this.world = new World(0, 0, this.cellsX, this.cellsY);
-    this.snake = new Snake(
-      this.gCtx,
-      Math.floor(this.cellsX / 2),
-      Math.floor(this.cellsY / 2)
-    );
+    this.snakes[0] = new Snake(this.gCtx, Math.floor(this.cellsX / 2), Math.floor(this.cellsY / 2));
     // start animation / hook into main-loop
     this.gCtx.setStatus(GameStatus.RUNNING);
-    window.requestAnimationFrame( this.nextFrame)
+
+    console.log("Init SnakeGame done");
+    setTimeout((self: SnakeGame) => {
+      self.gameStartAt = Date.now();
+      window.requestAnimationFrame(self.nextFrame)
+    }, 1800, this);
+    // window.requestAnimationFrame(this.nextFrame);
   }
 
   private keyHandler(event: KeyboardEvent) {
     event.preventDefault();
     switch (event.code) {
       case "KeyW":
-        this.inputQueue.enqueue({type: "move",key: "W",  direction: Direction.UP})
+        this.inputQueue.enqueue({ type: "move", key: "W", direction: Direction.UP });
         break;
       case "KeyA":
-        this.inputQueue.enqueue({type: "move",key: "A",  direction: Direction.LEFT})
+        this.inputQueue.enqueue({ type: "move", key: "A", direction: Direction.LEFT });
         break;
       case "KeyS":
-        this.inputQueue.enqueue({type: "move",key: "S",  direction: Direction.DOWN})
+        this.inputQueue.enqueue({ type: "move", key: "S", direction: Direction.DOWN });
         break;
       case "KeyD":
-        this.inputQueue.enqueue({type: "move",key: "D",  direction: Direction.RIGHT})
+        this.inputQueue.enqueue({ type: "move", key: "D", direction: Direction.RIGHT });
         break;
       case "Enter":
         // this.inputQueue.enqueue({type: "ui", key: "ENTER", action: this.holdGame})
@@ -112,19 +118,16 @@ export default class SnakeGame {
   private fillGridCell(gridX: number, gridY: number) {
     // grid index starts at 0
     this.ctx.fillStyle = "rgb(255,0,0)";
-    this.ctx.fillRect(
-      this.cellSize * gridX,
-      this.cellSize * gridY,
-      this.cellSize,
-      this.cellSize
-    );
+    this.ctx.fillRect(this.cellSize * gridX, this.cellSize * gridY, this.cellSize, this.cellSize);
   }
 
   private drawSnake() {
     // draw for each body a rect
     this.ctx.clearRect(0, 0, this.width, this.height);
-    for (let [x, y] of this.snake.getBody()) {
-      this.fillGridCell(x, y);
+    for (const snake of this.snakes) {
+      for (let [x, y] of snake.getBody()) {
+        this.fillGridCell(x, y);
+      }
     }
   }
 
@@ -138,47 +141,75 @@ export default class SnakeGame {
     this.ctx.font = "10px sans-serif";
     this.ctx.textAlign = "left";
     this.ctx.textBaseline = "hanging";
-    this.ctx.fillText(this.avgFPS.toFixed(0), 0, 0);
+    this.ctx.fillText(this.avgFPS.toFixed(1), 0, 0);
   }
 
   private nextFrame() {
     const cancelId = requestAnimationFrame(this.nextFrame);
 
     const currentTime = window.performance.now();
-    if(this.startTime === 0 ) {
+    if (this.startTime === 0) {
       this.startTime = currentTime;
-      this.previousTime = currentTime
+      this.previousTime = currentTime;
     }
 
     const elapsedTime = currentTime - this.previousTime; // time elapsed between last frame and this, delta frame time
     const totalElapsedTime = currentTime - this.startTime; // time passed in ms since game start
     this.lag += elapsedTime;
 
-
-
-    // console.log("Frame", this.framesCounter, "iteration", temp);
+    let updatesCycles = 0;
     while (this.lag >= MS_PER_UPDATE) {
       // console.log("Game update")
 
       // console.log("Frame", this.framesCounter, "at", new Date().getSeconds(), new Date().getMilliseconds(), "diff", elapsedTime, MS_PER_UPDATE)
 
       const input = this.inputQueue.dequeue();
-      if(input && input.type === "move") {
-        this.snake.setDirection(input.direction);
+      if (input && input.type === "move") {
+        for (const snake of this.snakes) {
+          snake.setDirection(input.direction);
+        }
       }
-
-      this.snake.update(this.world);
+      for (const snake of this.snakes) {
+        snake.update(this.world);
+      }
       this.lag -= MS_PER_UPDATE;
+      updatesCycles++;
     }
 
     if (this.gCtx.getStatus() === GameStatus.ENDED) {
       console.log("Game Ended!");
       cancelAnimationFrame(cancelId);
       this.endGame();
+    GAME_DEBUGGER.render({
+      totalElapsedTime,
+      elapsedTime,
+      msPerUpdate: MS_PER_UPDATE,
+      frame: this.framesCounter,
+      currentSnakeSpeed: this.snakes[0].getSpeed(),
+      frameCalcTime: 0,
+      updateCyclesPerFrame: updatesCycles,
+      gameStart: this.gameStartAt,
+      gameEnd: this.gameEndedAt
+    });
       return;
     }
 
     this.render(totalElapsedTime);
+
+    // debug
+    GameDebugger._sleep(10);
+    const frameCalcTime = window.performance.now() - currentTime;
+    GAME_DEBUGGER.render({
+      totalElapsedTime,
+      elapsedTime,
+      msPerUpdate: MS_PER_UPDATE,
+      frame: this.framesCounter,
+      currentSnakeSpeed: this.snakes[0].getSpeed(),
+      frameCalcTime,
+      updateCyclesPerFrame: updatesCycles,
+      gameStart: this.gameStartAt,
+      gameEnd: this.gameEndedAt
+    });
 
     ++this.framesCounter;
     this.previousTime = currentTime;
@@ -194,16 +225,13 @@ export default class SnakeGame {
   }
 
   public endGame() {
+    this.gameEndedAt = Date.now();
     requestAnimationFrame(() => {
       this.ctx.fillStyle = "rgb(255,0,0)";
       this.ctx.textAlign = "center";
       this.ctx.textBaseline = "middle";
       this.ctx.font = `${1.2 * this.cellSize}px sans-serif`;
-      this.ctx.fillText(
-        "Game Over",
-        Math.floor(this.width / 2),
-        Math.floor(this.height / 2)
-      );
+      this.ctx.fillText("Game Over", Math.floor(this.width / 2), Math.floor(this.height / 2));
     });
   }
 }
