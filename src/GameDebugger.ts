@@ -39,6 +39,25 @@ class GameDebugger {
     }
     this.canvasCtx = this.canvas.getContext("2d")!;
 
+    // Set size of canvas, take device pixel ratio into account
+    const canvasWidth = 300; // css pixel size
+    const canvasHeight = 150; // css pixel size
+
+    // window.devicePixelRatio = 8; // 6 is working on ThinkPad T15, not sure about differance at 8
+    // window.devicePixelRatio is read only works on initial load, but browser does not save the value
+    const scale = 2; // window.devicePixelRatio;
+
+    // display size in css pixel
+    this.canvas.style.width = canvasWidth + "px";
+    this.canvas.style.height = canvasHeight + "px";
+
+    // resolution of canvas
+    this.canvas.width = Math.floor(canvasWidth * scale);
+    this.canvas.height = Math.floor(canvasHeight * scale);
+
+    // scale coordiante system to match CSS pixels so we dont have to worry about the canvas resolution when drawing.
+    this.canvasCtx.scale(scale, scale);
+
     // Elements for rendering statistics and debug data to DOM
     this.elDebug= document.getElementById("debug")!;
     this.elDebugLogger = document.getElementById("debugLogger")!;
@@ -76,12 +95,12 @@ class GameDebugger {
     // 1 / ( 31.25 / 1000 ) = 32 FPS
     // 2 / ( 62.5 / 1000 ) = 32 FPS
     // 3 / ( 93.75 / 1000 ) = 32 FPS
-    console.log(frames, totalElapsedTime)
     const averageFPS = frames / (totalElapsedTime / 1000);
     this.canvasCtx.fillStyle = "darkorange";
     this.canvasCtx.font = "14px monospace";
     this.canvasCtx.textAlign = "right";
-    this.canvasCtx.fillText(averageFPS.toFixed(1) + " FPS", this.canvas.width, 10);
+    // use canvas.clientWidth to get the CSS pixel width of the canvas
+    this.canvasCtx.fillText(`${averageFPS.toFixed(1)} FPS`, this.canvas.clientWidth, 10);
   }
 
   private renderMetricsToCanvas(data: DebugDataSnapshot, frameLogLine: string, debugText: string) {
