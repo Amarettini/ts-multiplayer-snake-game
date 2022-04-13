@@ -13,7 +13,7 @@ export default class Snake {
   private ctx: GameContext;
   // entity properties
   private body: number[][]; // position of snake body in grid cells
-  private direction: Direction | null = null;
+  public direction: Direction | null = null;
   private moveTicker = 0; // calculate movement as accululator, on which frame (-interval) it should move
   private speedTicker = 0; // on which frame the snake's seepd should increase
   private speedGrowRate = 1; // how fast the speed should increase
@@ -118,16 +118,18 @@ export default class Snake {
     //   this.speedTicker= 0;
     // }
 
+    if(this.direction) {
+      this.moveTicker += MS_PER_UPDATE * this.speed;
+      while (this.moveTicker >= 1000) {
+        this.move();
+        this.moveTicker -= 1000
+      }
+      this.moveTicker = this.moveTicker % 1000;
 
-    this.moveTicker += MS_PER_UPDATE * this.speed;
-    if(this.moveTicker >= 1000) {
-      this.move();
-      this.moveTicker = 0;
+      const head = this.getHead();
+      if(!world.resolveCollision(head.x, head.y)) {
+        this.ctx.setStatus(GameStatus.ENDED);
+      };
     }
-
-    const head = this.getHead();
-    if(!world.resolveCollision(head.x, head.y)) {
-      this.ctx.setStatus(GameStatus.ENDED);
-    };
   }
 }

@@ -82,7 +82,11 @@ export default class SnakeGame {
 
     this.gCtx = new GameContext();
     this.world = new World(0, 0, this.cellsX, this.cellsY);
-    this.snakes[0] = new Snake(this.gCtx, Math.floor(this.cellsX / 2), Math.floor(this.cellsY / 2));
+    // Add 30 Snakes for determanistic position problem debugging
+    for(let i = 0; i < 30; i++) {
+      this.snakes[i] = new Snake(this.gCtx, Math.floor(i), Math.floor(this.cellsY / 4));
+      this.snakes[i].setSpeed(i);
+    }
     // start animation / hook into main-loop
     this.gCtx.setStatus(GameStatus.RUNNING);
 
@@ -121,12 +125,22 @@ export default class SnakeGame {
     this.ctx.fillRect(this.cellSize * gridX, this.cellSize * gridY, this.cellSize, this.cellSize);
   }
 
-  private drawSnake() {
+  private drawSnake(interpolation: number) {
     // draw for each body a rect
     this.ctx.clearRect(0, 0, this.width, this.height);
     for (const snake of this.snakes) {
+      let bodyIndex = 0;
       for (let [x, y] of snake.getBody()) {
         this.fillGridCell(x, y);
+        // label head of snake with its current velocity for debugging
+        if(bodyIndex === 0) {
+          this.ctx.fillStyle = "white"
+          this.ctx.textAlign = "center";
+          this.ctx.textBaseline = "middle";
+          this.ctx.font = "10px sans-serif";
+          this.ctx.fillText(snake.getSpeed().toString(), this.cellSize * x + (this.cellSize / 2), this.cellSize * y + (this.cellSize / 2));
+        }
+        bodyIndex++
       }
     }
   }
@@ -194,7 +208,7 @@ export default class SnakeGame {
       return;
     }
 
-    this.render(totalElapsedTime);
+    this.render(this.lag / MS_PER_UPDATE);
 
     // debug
     GameDebugger._sleep(10);
@@ -215,9 +229,8 @@ export default class SnakeGame {
     this.previousTime = currentTime;
   }
 
-  private render(totalElapsedTime: number) {
-    this.drawSnake();
-    this.drawFPS(totalElapsedTime);
+  private render(interp: number) {
+    this.drawSnake(interp);
   }
 
   public freezeGame() {
