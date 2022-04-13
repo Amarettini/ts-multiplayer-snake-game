@@ -1,7 +1,6 @@
 import { World } from "./World";
 import { GameContext, GameStatus } from "./GameContext";
-import { Snake } from "./Snake";
-import { Direction } from "./types";
+import { Snake, Direction } from "./Snake";
 import { Queue } from "./Queue";
 import { GameDebugger } from "./GameDebugger";
 

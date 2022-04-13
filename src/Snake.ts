@@ -1,6 +1,12 @@
 import { GameContext, GameStatus } from "./GameContext";
 import { World } from "./World";
-import { Direction } from "./types";
+
+export enum Direction {
+  UP,
+  LEFT,
+  DOWN,
+  RIGHT,
+}
 
 const iligalDirectionTurns = new Map([
   [Direction.UP, Direction.DOWN],
