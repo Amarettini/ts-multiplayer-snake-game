@@ -1,7 +1,8 @@
-
-declare interface Window {
-    createNewGame(): void;
-    currentSnakeGame: import("./SnakeGame").default | null;
-    MS_PER_UPDATE: number;
-    GAME_DEBUGGER: import("./GameDebugger").GameDebugger;
-  }
+declare function createNewGame(): void;
+declare var snake: {
+  currentGame: import("./SnakeGame").SnakeGame | null;
+  debugger: import("./GameDebugger").GameDebugger;
+  settings: {
+    msPerUpdate: number;
+  };
+};

@@ -1,5 +1,5 @@
-import {GameContext, GameStatus} from "./GameContext";
-import World from "./World";
+import { GameContext, GameStatus } from "./GameContext";
+import { World } from "./World";
 import { Direction } from "./types";
 
 const iligalDirectionTurns = new Map([
@@ -7,9 +7,9 @@ const iligalDirectionTurns = new Map([
   [Direction.LEFT, Direction.RIGHT],
   [Direction.DOWN, Direction.UP],
   [Direction.RIGHT, Direction.LEFT]
-])
+]);
 
-export default class Snake {
+export class Snake {
   private ctx: GameContext;
   // entity properties
   private body: number[][]; // position of snake body in grid cells
@@ -28,13 +28,13 @@ export default class Snake {
   }
 
   public getHead() {
-    return {x: this.body[0][0], y: this.body[0][1]}
+    return { x: this.body[0][0], y: this.body[0][1] };
   }
 
   public setDirection(direction: Direction) {
     // return false if update was denied because of forbiden turn
     // prevent U-turns movements
-    if(this.direction === iligalDirectionTurns.get(direction)) {
+    if (this.direction === iligalDirectionTurns.get(direction)) {
       return false;
     }
 
@@ -55,7 +55,6 @@ export default class Snake {
   }
 
   private move() {
-
     let head: Array<number>;
     if (this.direction === null) {
       // user made no input
@@ -118,18 +117,18 @@ export default class Snake {
     //   this.speedTicker= 0;
     // }
 
-    if(this.direction) {
-      this.moveTicker += MS_PER_UPDATE * this.speed;
+    if (this.direction) {
+      this.moveTicker += window.snake.settings.msPerUpdate * this.speed;
       while (this.moveTicker >= 1000) {
         this.move();
-        this.moveTicker -= 1000
+        this.moveTicker -= 1000;
       }
       this.moveTicker = this.moveTicker % 1000;
 
       const head = this.getHead();
-      if(!world.resolveCollision(head.x, head.y)) {
+      if (!world.resolveCollision(head.x, head.y)) {
         this.ctx.setStatus(GameStatus.ENDED);
-      };
+      }
     }
   }
 }

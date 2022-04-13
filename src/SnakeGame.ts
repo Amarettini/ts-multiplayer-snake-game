@@ -1,13 +1,9 @@
-import World from "./World";
+import { World } from "./World";
 import { GameContext, GameStatus } from "./GameContext";
-import Snake from "./Snake";
+import { Snake } from "./Snake";
 import { Direction } from "./types";
 import { Queue } from "./Queue";
 import { GameDebugger } from "./GameDebugger";
-
-window.MS_PER_UPDATE = 34;
-window.GAME_DEBUGGER = new GameDebugger();
-let temp = 0;
 
 interface MoveInput {
   key: "W" | "A" | "S" | "D";
@@ -23,7 +19,7 @@ interface UIInput {
 
 type GameInputEvent = MoveInput | UIInput;
 
-export default class SnakeGame {
+export class SnakeGame {
   // game options
   private world: World;
   private gCtx: GameContext;
@@ -78,7 +74,7 @@ export default class SnakeGame {
     this.gCtx = new GameContext();
     this.world = new World(0, 0, this.cellsX, this.cellsY);
     // Add 30 Snakes for determanistic position problem debugging
-    for(let i = 0; i < 30; i++) {
+    for (let i = 0; i < 30; i++) {
       this.snakes[i] = new Snake(this.gCtx, Math.floor(i), Math.floor(this.cellsY / 4));
       this.snakes[i].setSpeed(i);
     }
@@ -86,10 +82,14 @@ export default class SnakeGame {
     this.gCtx.setStatus(GameStatus.RUNNING);
 
     console.log("Init SnakeGame done");
-    setTimeout((self: SnakeGame) => {
-      self.gameStartAt = Date.now();
-      window.requestAnimationFrame(self.nextFrame)
-    }, 1800, this);
+    setTimeout(
+      (self: SnakeGame) => {
+        self.gameStartAt = Date.now();
+        window.requestAnimationFrame(self.nextFrame);
+      },
+      1800,
+      this
+    );
     // window.requestAnimationFrame(this.nextFrame);
   }
 
@@ -128,14 +128,18 @@ export default class SnakeGame {
       for (let [x, y] of snake.getBody()) {
         this.fillGridCell(x, y);
         // label head of snake with its current velocity for debugging
-        if(bodyIndex === 0) {
-          this.ctx.fillStyle = "white"
+        if (bodyIndex === 0) {
+          this.ctx.fillStyle = "white";
           this.ctx.textAlign = "center";
           this.ctx.textBaseline = "middle";
           this.ctx.font = "10px sans-serif";
-          this.ctx.fillText(snake.getSpeed().toString(), this.cellSize * x + (this.cellSize / 2), this.cellSize * y + (this.cellSize / 2));
+          this.ctx.fillText(
+            snake.getSpeed().toString(),
+            this.cellSize * x + this.cellSize / 2,
+            this.cellSize * y + this.cellSize / 2
+          );
         }
-        bodyIndex++
+        bodyIndex++;
       }
     }
   }
@@ -167,7 +171,7 @@ export default class SnakeGame {
     this.lag += elapsedTime;
 
     let updatesCycles = 0;
-    while (this.lag >= MS_PER_UPDATE) {
+    while (this.lag >= window.snake.settings.msPerUpdate) {
       // console.log("Game update")
 
       // console.log("Frame", this.framesCounter, "at", new Date().getSeconds(), new Date().getMilliseconds(), "diff", elapsedTime, MS_PER_UPDATE)
@@ -181,7 +185,7 @@ export default class SnakeGame {
       for (const snake of this.snakes) {
         snake.update(this.world);
       }
-      this.lag -= MS_PER_UPDATE;
+      this.lag -= window.snake.settings.msPerUpdate;
       updatesCycles++;
     }
 
@@ -189,29 +193,29 @@ export default class SnakeGame {
       console.log("Game Ended!");
       cancelAnimationFrame(cancelId);
       this.endGame();
-    GAME_DEBUGGER.render({
-      totalElapsedTime,
-      elapsedTime,
-      msPerUpdate: MS_PER_UPDATE,
-      frame: this.framesCounter,
-      currentSnakeSpeed: this.snakes[0].getSpeed(),
-      frameCalcTime: 0,
-      updateCyclesPerFrame: updatesCycles,
-      gameStart: this.gameStartAt,
-      gameEnd: this.gameEndedAt
-    });
+      window.snake.debugger.render({
+        totalElapsedTime,
+        elapsedTime,
+        msPerUpdate: window.snake.settings.msPerUpdate,
+        frame: this.framesCounter,
+        currentSnakeSpeed: this.snakes[0].getSpeed(),
+        frameCalcTime: 0,
+        updateCyclesPerFrame: updatesCycles,
+        gameStart: this.gameStartAt,
+        gameEnd: this.gameEndedAt
+      });
       return;
     }
 
-    this.render(this.lag / MS_PER_UPDATE);
+    this.render(this.lag / window.snake.settings.msPerUpdate);
 
     // debug
     GameDebugger._sleep(10);
     const frameCalcTime = window.performance.now() - currentTime;
-    GAME_DEBUGGER.render({
+    window.snake.debugger.render({
       totalElapsedTime,
       elapsedTime,
-      msPerUpdate: MS_PER_UPDATE,
+      msPerUpdate: window.snake.settings.msPerUpdate,
       frame: this.framesCounter,
       currentSnakeSpeed: this.snakes[0].getSpeed(),
       frameCalcTime,

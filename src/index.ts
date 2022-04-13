@@ -1,9 +1,17 @@
 import "./styles/style.css";
-import SnakeGame from "./SnakeGame";
+import { SnakeGame } from "./SnakeGame";
+import { GameDebugger } from "./GameDebugger";
 
-window.currentSnakeGame = null;
+window.snake = {
+  currentGame: null,
+  debugger: new GameDebugger(),
+  settings: {
+    msPerUpdate: 34
+  }
+};
+
 window.createNewGame = () => {
-  window.currentSnakeGame?.endGame();
+  window.snake.currentGame?.endGame();
   const canvasEl = document.getElementById("game") as HTMLCanvasElement;
-  window.currentSnakeGame = new SnakeGame(canvasEl, 40, 40, 20);
+  window.snake.currentGame = new SnakeGame(canvasEl, 40, 40, 20);
 };

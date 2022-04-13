@@ -1,4 +1,4 @@
-interface DebugDataSnapshot {
+interface DebugSnapshotData {
   msPerUpdate: number;
   totalElapsedTime: number;
   elapsedTime: number;
@@ -59,7 +59,7 @@ class GameDebugger {
     this.canvasCtx.scale(scale, scale);
 
     // Elements for rendering statistics and debug data to DOM
-    this.elDebug= document.getElementById("debug")!;
+    this.elDebug = document.getElementById("debug")!;
     this.elDebugLogger = document.getElementById("debugLogger")!;
   }
 
@@ -103,44 +103,64 @@ class GameDebugger {
     this.canvasCtx.fillText(`${averageFPS.toFixed(1)} FPS`, this.canvas.clientWidth, 10);
   }
 
-  private renderMetricsToCanvas(data: DebugDataSnapshot, frameLogLine: string, debugText: string) {
+  private renderMetricsToCanvas(data: DebugSnapshotData, frameLogLine: string, debugText: string) {
     const fontSize = 10;
     this.canvasCtx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.canvasCtx.font = `${fontSize}px monospace`;
     this.canvasCtx.textAlign = "left";
     this.canvasCtx.fillStyle = "Lime";
-    const lines = debugText.split("\n")
-    for(let i = 0; i < lines.length; i++) {
-      this.canvasCtx.fillText(lines[i], 0, (fontSize * i) + fontSize);
+    const lines = debugText.split("\n");
+    for (let i = 0; i < lines.length; i++) {
+      this.canvasCtx.fillText(lines[i], 0, fontSize * i + fontSize);
     }
 
     this.drawFPS(data.frame, data.totalElapsedTime);
   }
 
-  private renderMetricsToDOM(data: DebugDataSnapshot, frameLog: string, debugText: string) {
+  private renderMetricsToDOM(data: DebugSnapshotData, frameLog: string, debugText: string) {
     // update the debug metrics shown on the dom
     this.elDebug.innerText = debugText;
     this.elDebugLogger.prepend(frameLog);
   }
 
-  public render(data: DebugDataSnapshot) {
+  public render(data: DebugSnapshotData) {
     const frameLogLine = this.createFrameLog(data.frame, data.frameCalcTime);
     const debugText =
-    "MS per update:          " + data.msPerUpdate + "\n" +
-    "Total elapsed time:     " + Math.trunc(data.totalElapsedTime).toString().padStart(6, "0") + " ms\n" +
-    "Start: " + data.gameStart + "\n" +
-    "End:   " + data.gameEnd + "\n" +
-    "\n" +
-    "Snake:\n" +
-    "  Current speed:        " + data.currentSnakeSpeed + "\n" +
-    "\n" +
-    "Per Frame:\n" +
-    "  Frame:                " + data.frame + "\n" +
-    "  Update cycles:        " + data.updateCyclesPerFrame + " " + "1/Frame" + "\n" +
-    "  Calculated in:        " + data.frameCalcTime.toFixed(3).padStart(7, " ") + " ms\n" +
-    "  Elapsed time:         " + data.elapsedTime.toPrecision(5).padStart(7, " ") + " ms\n" +
-    "\n" +
-    frameLogLine;
+      "MS per update:          " +
+      data.msPerUpdate +
+      "\n" +
+      "Total elapsed time:     " +
+      Math.trunc(data.totalElapsedTime).toString().padStart(6, "0") +
+      " ms\n" +
+      "Start: " +
+      data.gameStart +
+      "\n" +
+      "End:   " +
+      data.gameEnd +
+      "\n" +
+      "\n" +
+      "Snake:\n" +
+      "  Current speed:        " +
+      data.currentSnakeSpeed +
+      "\n" +
+      "\n" +
+      "Per Frame:\n" +
+      "  Frame:                " +
+      data.frame +
+      "\n" +
+      "  Update cycles:        " +
+      data.updateCyclesPerFrame +
+      " " +
+      "1/Frame" +
+      "\n" +
+      "  Calculated in:        " +
+      data.frameCalcTime.toFixed(3).padStart(7, " ") +
+      " ms\n" +
+      "  Elapsed time:         " +
+      data.elapsedTime.toPrecision(5).padStart(7, " ") +
+      " ms\n" +
+      "\n" +
+      frameLogLine;
 
     // this.renderMetricsToDOM(data, frameLogLine, debugText);
     this.renderMetricsToCanvas(data, frameLogLine, debugText);

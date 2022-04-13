@@ -1,4 +1,4 @@
-export default class World {
+export class World {
   constructor(
     private borderX: number,
     private borderY: number,

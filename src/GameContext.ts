@@ -15,5 +15,4 @@ export class GameContext {
   public getStatus() {
     return this.gameStatus;
   }
-
 }
