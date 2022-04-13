@@ -18,15 +18,17 @@ interface UIInput {
 
 type GameInputEvent = MoveInput | UIInput;
 
+let cancelId: number; // todo: refactor for proper error handling
+
 export class SnakeGame {
   // game options
   private world: World;
   private gCtx: GameContext;
   private readonly inputQueue: Queue<GameInputEvent>;
-  private ctx: CanvasRenderingContext2D;
-  private cellSize: number;
-  private cellsX: number;
-  private cellsY: number;
+  public ctx: CanvasRenderingContext2D;
+  public cellSize: number;
+  public cellsX: number;
+  public cellsY: number;
   public width: number;
   public height: number;
   public scale: number;
@@ -108,34 +110,10 @@ export class SnakeGame {
     }
   }
 
-  private fillGridCell(gridX: number, gridY: number) {
-    // grid index starts at 0
-    this.ctx.fillStyle = "rgb(255,0,0)";
-    this.ctx.fillRect(this.cellSize * gridX, this.cellSize * gridY, this.cellSize, this.cellSize);
-  }
 
   private drawSnake(interpolation: number) {
-    // draw for each body a rect
     this.ctx.clearRect(0, 0, this.width, this.height);
-    for (const snake of this.snakes) {
-      let bodyIndex = 0;
-      for (let [x, y] of snake.getBody()) {
-        this.fillGridCell(x, y);
-        // label head of snake with its current velocity for debugging
-        if (bodyIndex === 0) {
-          this.ctx.fillStyle = "white";
-          this.ctx.textAlign = "center";
-          this.ctx.textBaseline = "middle";
-          this.ctx.font = "10px sans-serif";
-          this.ctx.fillText(
-            snake.getSpeed().toString(),
-            this.cellSize * x + this.cellSize / 2,
-            this.cellSize * y + this.cellSize / 2
-          );
-        }
-        bodyIndex++;
-      }
-    }
+    this.snakes.forEach(snake => snake.render(this.ctx, this, interpolation));
   }
 
   private drawFPS(timeStart: number) {
@@ -152,7 +130,6 @@ export class SnakeGame {
   }
 
   private nextFrame() {
-    const cancelId = requestAnimationFrame(this.nextFrame);
 
     const currentTime = window.performance.now();
     if (this.startTime === 0) {
@@ -220,6 +197,8 @@ export class SnakeGame {
 
     ++this.framesCounter;
     this.previousTime = currentTime;
+
+    cancelId = requestAnimationFrame(this.nextFrame);
   }
 
   private render(interp: number) {

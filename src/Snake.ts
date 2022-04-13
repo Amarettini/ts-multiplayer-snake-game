@@ -1,4 +1,5 @@
 import { GameContext, GameStatus } from "./GameContext";
+import { SnakeGame } from "./SnakeGame";
 import { World } from "./World";
 
 export enum Direction {
@@ -136,5 +137,32 @@ export class Snake {
         this.ctx.setStatus(GameStatus.ENDED);
       }
     }
+  }
+
+  private fillGridCell(ctx: CanvasRenderingContext2D, self: SnakeGame, gridX: number, gridY: number) {
+    // grid index starts at 0
+    ctx.fillStyle = "rgb(255,0,0)";
+    ctx.fillRect(self.cellSize * gridX, self.cellSize * gridY, self.cellSize, self.cellSize);
+  }
+
+  render(ctx: CanvasRenderingContext2D, self: SnakeGame, interpolation?: number) {
+    // draw for each body a rect
+      let bodyIndex = 0;
+      for (let [x, y] of this.getBody()) {
+        this.fillGridCell(ctx, self, x, y);
+        // label head of snake with its current velocity for debugging
+        if (bodyIndex === 0) {
+          ctx.fillStyle = "white";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.font = "10px sans-serif";
+          ctx.fillText(
+            this.getSpeed().toString(),
+            self.cellSize * x + self.cellSize / 2,
+            self.cellSize * y + self.cellSize / 2
+          );
+        }
+        bodyIndex++;
+      }
   }
 }
