@@ -72,15 +72,10 @@ export class SnakeGame {
 
     this.gCtx = new GameContext();
     this.world = new World(0, 0, this.cellsX, this.cellsY);
-    // Add 30 Snakes for determanistic position problem debugging
-    for (let i = 0; i < 30; i++) {
-      this.snakes[i] = new Snake(this.gCtx, Math.floor(i), Math.floor(this.cellsY / 4));
-      this.snakes[i].setSpeed(i);
-    }
-    // start animation / hook into main-loop
+    this.snakes[0] = new Snake(this.gCtx, this.cellsX / 2, this.cellsY / 2);
     this.gCtx.setStatus(GameStatus.RUNNING);
 
-    console.log("Init SnakeGame done");
+    console.log("Initialized SnakeGame");
     setTimeout(
       (self: SnakeGame) => {
         self.gameStartAt = Date.now();
@@ -177,7 +172,7 @@ export class SnakeGame {
 
       const input = this.inputQueue.dequeue();
       if (input && input.type === "move") {
-        for (const snake of this.snakes) {
+        for (let snake of this.snakes) {
           snake.setDirection(input.direction);
         }
       }
@@ -209,7 +204,7 @@ export class SnakeGame {
     this.render(this.lag / window.snake.settings.msPerUpdate);
 
     // debug
-    GameDebugger._sleep(10);
+    // GameDebugger._sleep(10);
     const frameCalcTime = window.performance.now() - currentTime;
     window.snake.debugger.render({
       totalElapsedTime,

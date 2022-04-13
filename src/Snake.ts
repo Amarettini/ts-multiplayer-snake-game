@@ -123,7 +123,7 @@ export class Snake {
     //   this.speedTicker= 0;
     // }
 
-    if (this.direction) {
+    if (this.direction !== null) {
       this.moveTicker += window.snake.settings.msPerUpdate * this.speed;
       while (this.moveTicker >= 1000) {
         this.move();
