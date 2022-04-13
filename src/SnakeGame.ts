@@ -21,11 +21,6 @@ interface UIInput {
   action: () => boolean;
 }
 
-declare global {
-  var moveInput: MoveInput;
-  // typeof getFormattedTime;
-}
-
 type GameInputEvent = MoveInput | UIInput;
 
 export default class SnakeGame {
