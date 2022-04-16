@@ -32,14 +32,17 @@ export class SnakeGame {
     const canvasOptions = initializeCanvas(width * cellSize, height * cellSize, canvasEl);
     this.ctx = canvasOptions.ctx;
 
-
-
     this.gStateMachine = new GlobalStateMachine(
       {
-        start: () => new StartState({
-          Space: () => {this.gStateMachine.change("play")},
-          Escape: () => {this.gStateMachine.toggleDebuggerVisibility()}
-        }),
+        start: () =>
+          new StartState({
+            Space: () => {
+              this.gStateMachine.change("play");
+            },
+            Escape: () => {
+              this.gStateMachine.toggleDebuggerVisibility();
+            }
+          }),
         play: () => new PlayState(new World(0, 0, width, height)),
         end: () => new EndState()
       },

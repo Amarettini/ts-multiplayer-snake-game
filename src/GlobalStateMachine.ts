@@ -29,7 +29,7 @@ export class GlobalStateMachine<T extends string> extends StateMachine<T> {
 
   public toggleDebuggerVisibility() {
     this.showDebugger = !this.showDebugger;
-    if(this.showDebugger)  this._debugger.show();
+    if (this.showDebugger) this._debugger.show();
     else this._debugger.hide();
   }
 

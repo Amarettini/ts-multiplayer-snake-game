@@ -1,9 +1,9 @@
 import { StateMachineState } from "./states/BaseState";
 import { DefaultState } from "./states/DefaultState";
 
-type StateFactory = () => StateMachineState
+type StateFactory = () => StateMachineState;
 
-export type ConstructorStates<T extends string> = { [StateId in T]: StateFactory};
+export type ConstructorStates<T extends string> = { [StateId in T]: StateFactory };
 
 export class StateMachine<T extends string> {
   public current: StateMachineState;

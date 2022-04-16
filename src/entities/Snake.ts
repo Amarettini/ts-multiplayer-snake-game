@@ -59,11 +59,16 @@ export class Snake {
   }
 
   private move() {
+    console.log("move", this.getDirection());
     // consume direciton queue
     let head: Array<number>;
     if (this.getDirection() === null) {
       // user made no input
       return;
+    }
+    // make sure to keep last Direction in queue
+    if (this.directionQueue.size() > 1) {
+      this.directionQueue.dequeue();
     }
     // create new head from previous head position
     switch (this.getDirection()) {
@@ -81,10 +86,6 @@ export class Snake {
         break;
       default:
         throw new Error("Invalid Direction peeked from DirectionQueue.");
-    }
-    // make sure to keep last Direction in queue
-    if (this.directionQueue.size() > 1) {
-      this.directionQueue.dequeue();
     }
     // insert new head and remove tail if long enought
     this.body.unshift(head);

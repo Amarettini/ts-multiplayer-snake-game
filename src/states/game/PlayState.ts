@@ -9,9 +9,10 @@ export class PlayState implements StateMachineState {
     this.world = world;
 
     this.entities.push(new Snake(0, 0));
+    this.entities[0].setSpeed(5);
   }
   enter(): void {
-    console.log("Enter PlayState!")
+    console.log("Enter PlayState!");
   }
   exit(): void {}
 
@@ -22,12 +23,12 @@ export class PlayState implements StateMachineState {
     // check world board collision
     const head = this.entities[0].getHead();
     if (!this.world.resolveCollision(head.x, head.y)) {
-      window.snake.currentGame?.gStateMachine.change("end")
+      window.snake.currentGame?.gStateMachine.change("end");
     }
   }
 
   handleInput(event: KeyboardEvent): void {
-    console.log("Input from PlayState")
+    console.log("Input from PlayState");
     for (const entity of this.entities) {
       entity.handleInput(event);
     }

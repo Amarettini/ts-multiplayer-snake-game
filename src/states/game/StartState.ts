@@ -7,7 +7,7 @@ export class StartState implements StateMachineState {
     this.keyActions = keyActions;
   }
   enter(): void {
-    console.log("Enter StartState!")
+    console.log("Enter StartState!");
   }
   exit(): void {}
   handleInput(event: KeyboardEvent): void {

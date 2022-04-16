@@ -3,24 +3,22 @@ import { StateMachineState } from "../BaseState";
 export class EndState implements StateMachineState {
   private cooldownTicker: number;
   private cooldownRate: number;
-  private cooldown: number
+  private cooldown: number;
   constructor() {
     this.cooldownRate = 1;
     this.cooldownTicker = 0;
     this.cooldown = 0;
-
   }
   update(dt: number): void {
     this.cooldownTicker += dt * this.cooldownRate;
-    if(this.cooldownTicker >= 1000) {
+    if (this.cooldownTicker >= 1000) {
       console.log(this.cooldown);
 
-      if(++this.cooldown === 3) {
+      if (++this.cooldown === 3) {
         window.snake.currentGame?.gStateMachine.change("start");
       }
       this.cooldownTicker = this.cooldownTicker % 1000;
     }
-
   }
   render(ctx: CanvasRenderingContext2D, interpolation: number): void {
     this.endGame(ctx);
