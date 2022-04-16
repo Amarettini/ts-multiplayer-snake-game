@@ -1,3 +1,8 @@
+@font-face {
+  font-family: kongtext;
+  src: url("../../assets/kongtext.ttf");
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

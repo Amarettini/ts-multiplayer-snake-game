@@ -9,7 +9,7 @@ export class World {
   public resolveCollision(entityX: number, entityY: number): boolean {
     // true if position is valid, false otherwise
     // collision with rectangle world box
-    if(
+    if (
       entityY < this.borderY ||
       entityX >= this.borderW ||
       entityY >= this.borderH ||

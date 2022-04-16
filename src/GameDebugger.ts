@@ -1,4 +1,6 @@
-interface DebugSnapshotData {
+import { initializeCanvas } from ".";
+
+export interface DebugSnapshotData {
   msPerUpdate: number;
   totalElapsedTime: number;
   elapsedTime: number;
@@ -23,40 +25,23 @@ class GameDebugger {
   private elDebugLogger: HTMLElement;
 
   constructor(options?: GameDebuggerOptions) {
-    if (options) {
-      this.canvas = options.canvas;
+    const canvasOptios = initializeCanvas(300, 150, options ? options.canvas : undefined);
+    this.canvas = canvasOptios.canvas;
+    this.canvasCtx = canvasOptios.ctx;
+
+    this.canvas.style.background = "Blue";
+    this.canvas.style.position = "absolute";
+    this.canvas.style.top = "10px";
+    this.canvas.style.left = "0";
+
+    const bodyEl = document.getElementsByTagName("body").item(0);
+    if (bodyEl !== null) {
+      bodyEl.prepend(this.canvas);
     } else {
-      // Create new canvas to render statistics, debug data
-      this.canvas = document.createElement("canvas");
-      this.canvas.style.background = "Blue";
-      this.canvas.style.position = "absolute";
-      this.canvas.style.top = "10px";
-      this.canvas.style.left = "0";
-      const bodyEl = document.getElementsByTagName("body").item(0);
-      if (bodyEl !== null) {
-        bodyEl.prepend(this.canvas);
-      }
+      throw new Error("Failed to attach debugger-canvas to dom!");
     }
-    this.canvasCtx = this.canvas.getContext("2d")!;
 
-    // Set size of canvas, take device pixel ratio into account
-    const canvasWidth = 300; // css pixel size
-    const canvasHeight = 150; // css pixel size
-
-    // window.devicePixelRatio = 8; // 6 is working on ThinkPad T15, not sure about differance at 8
-    // window.devicePixelRatio is read only works on initial load, but browser does not save the value
-    const scale = 2; // window.devicePixelRatio;
-
-    // display size in css pixel
-    this.canvas.style.width = canvasWidth + "px";
-    this.canvas.style.height = canvasHeight + "px";
-
-    // resolution of canvas
-    this.canvas.width = Math.floor(canvasWidth * scale);
-    this.canvas.height = Math.floor(canvasHeight * scale);
-
-    // scale coordiante system to match CSS pixels so we dont have to worry about the canvas resolution when drawing.
-    this.canvasCtx.scale(scale, scale);
+    this.hide();
 
     // Elements for rendering statistics and debug data to DOM
     this.elDebug = document.getElementById("debug")!;
@@ -164,6 +149,13 @@ class GameDebugger {
 
     // this.renderMetricsToDOM(data, frameLogLine, debugText);
     this.renderMetricsToCanvas(data, frameLogLine, debugText);
+  }
+
+  public hide() {
+    this.canvas.style.visibility = "hidden";
+  }
+  public show() {
+    this.canvas.style.visibility = "visible";
   }
 }
 
