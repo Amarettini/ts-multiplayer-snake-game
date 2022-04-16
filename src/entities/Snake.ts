@@ -24,7 +24,7 @@ export class Snake {
 
   // Idea: add acceleration on 'harder levers'
   private accelerationTicker = 0; // when to increase acceleration, accumulates delta frame time
-  private acceleration = 0.125;       // increase speed by one every 8 seconds
+  private acceleration = 0.125; // increase speed by one every 8 seconds
 
   // linear acceleration by increasing velocity on a set intervall, with the acceleration var we could
   // multiply by a fraction to decrease the delta intervall
@@ -173,16 +173,16 @@ export class Snake {
     // push input to direction queue
     switch (input.code) {
       case "KeyW":
-        this.directionQueue.enqueue(Direction.UP);
+        this.setDirection(Direction.UP);
         break;
       case "KeyA":
-        this.directionQueue.enqueue(Direction.LEFT);
+        this.setDirection(Direction.LEFT);
         break;
       case "KeyS":
-        this.directionQueue.enqueue(Direction.DOWN);
+        this.setDirection(Direction.DOWN);
         break;
       case "KeyD":
-        this.directionQueue.enqueue(Direction.RIGHT);
+        this.setDirection(Direction.RIGHT);
         break;
     }
   }
