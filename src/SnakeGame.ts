@@ -16,7 +16,7 @@ export interface KeyActions {
 export class SnakeGame {
   // game options
   public ctx: CanvasRenderingContext2D;
-  private gStateMachine;
+  public gStateMachine;
 
   // frame calculation
   private startTime = 0;
@@ -32,18 +32,16 @@ export class SnakeGame {
     const canvasOptions = initializeCanvas(width * cellSize, height * cellSize, canvasEl);
     this.ctx = canvasOptions.ctx;
 
-    const handleSpace = () => {
-    };
 
 
     this.gStateMachine = new GlobalStateMachine(
       {
-        start: new StartState({
+        start: () => new StartState({
           Space: () => {this.gStateMachine.change("play")},
           Escape: () => {this.gStateMachine.toggleDebuggerVisibility()}
         }),
-        play: new PlayState(new World(0, 0, 40, 40)),
-        end: new EndState()
+        play: () => new PlayState(new World(0, 0, width, height)),
+        end: () => new EndState()
       },
       new GameDebugger()
     );

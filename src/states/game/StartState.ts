@@ -6,7 +6,9 @@ export class StartState implements StateMachineState {
   constructor(keyActions: KeyActions) {
     this.keyActions = keyActions;
   }
-  enter(): void {}
+  enter(): void {
+    console.log("Enter StartState!")
+  }
   exit(): void {}
   handleInput(event: KeyboardEvent): void {
     const action = this.keyActions[event.code];
