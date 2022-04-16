@@ -20,7 +20,11 @@ export class StartState implements StateMachineState {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = "orange";
-    ctx.font = "20px kongtext";
+    ctx.font = "30px kongtext";
     ctx.fillText("Snake Multiplayer", (width * cellSize) / 2, (height * cellSize) / 2);
+    // ctx.textBaseline =
+    ctx.fillStyle = "grey";
+    ctx.font = "15px kongtext";
+    ctx.fillText("Press SPACE to start.", (width * cellSize) / 2, height * cellSize * 0.65);
   }
 }

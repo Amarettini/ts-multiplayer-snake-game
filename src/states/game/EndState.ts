@@ -32,10 +32,10 @@ export class EndState implements StateMachineState {
   public endGame(ctx: CanvasRenderingContext2D) {
     // this.gameEndedAt = Date.now();
     const { cellSize, width, height } = window.snake.settings;
-    ctx.fillStyle = "rgb(255,0,0)";
+    ctx.fillStyle = "rgba(255,0,0,0.9)";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.font = `${1.2 * cellSize}px sans-serif`;
+    ctx.font = "36px kongtext";
     ctx.fillText(
       "Game Over",
       Math.floor((width * cellSize) / 2),
