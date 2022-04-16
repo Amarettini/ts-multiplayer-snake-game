@@ -12,7 +12,7 @@ export class GlobalStateMachine<T extends string> extends StateMachine<T> {
 
   constructor(states: ConstructorStates<T>, gameDebugger: GameDebugger) {
     super(states);
-    this.setDebugger(gameDebugger)
+    this.setDebugger(gameDebugger);
     this.debugSnapshotData = null;
     this.showDebugger = false;
   }
