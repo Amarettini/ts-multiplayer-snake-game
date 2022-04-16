@@ -25,11 +25,12 @@ class GameDebugger {
   private elDebugLogger: HTMLElement;
 
   constructor(options?: GameDebuggerOptions) {
-    const canvasOptios = initializeCanvas(300, 150, options ? options.canvas : undefined);
+    const canvasOptios = initializeCanvas(300, 250, options ? options.canvas : undefined);
     this.canvas = canvasOptios.canvas;
     this.canvasCtx = canvasOptios.ctx;
 
-    this.canvas.style.background = "Blue";
+    this.canvas.style.background = "rgba(0, 0, 255, 0.4)";
+    // this.canvas.style.opacity = "0.6";
     this.canvas.style.position = "absolute";
     this.canvas.style.top = "10px";
     this.canvas.style.left = "0";
