@@ -8,10 +8,11 @@ export class PlayState implements StateMachineState {
   constructor(world: World) {
     this.world = world;
 
-    this.entities.push(new Snake(0, 0));
-    this.entities[0].setVelocity(5);
+    const { width, height } = window.snake.settings;
+    this.entities.push(new Snake(Math.floor(width / 2), Math.floor(height / 2)));
+    this.entities[0].setVelocity(4);
 
-    window.snake.debugger?.initStateSource(this.entities[0])
+    window.snake.debugger?.initStateSource(this.entities[0]);
   }
   enter(): void {
     console.log("Enter PlayState!");
@@ -20,11 +21,11 @@ export class PlayState implements StateMachineState {
 
   update(dt: number): void {
     // update snake state
-    this.entities[0].update(dt, this.world);
+    let updateSuccess = this.entities[0].update(dt, this.world); // failed due to self collision in this case
 
     // check world board collision
     const head = this.entities[0].getHead();
-    if (!this.world.resolveCollision(head.x, head.y)) {
+    if (!this.world.resolveCollision(head.x, head.y) || !updateSuccess) {
       window.snake.currentGame?.gStateMachine.change("end");
     }
   }

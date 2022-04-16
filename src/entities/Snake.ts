@@ -67,6 +67,23 @@ export class Snake {
     this.velocity = velocity;
   }
 
+  /**
+   * Should be invoked after update() to check if the head colided with its own body
+   */
+  public selfCollision(): boolean {
+    const { x: headX, y: headY } = this.getHead();
+    const body = this.getBody();
+    for (let i = 1; i < body.length; i++) {
+      const [bodyX, bodyY] = body[i];
+      // console.log(headX, bodyX, headY, bodyY);
+      if (headX === bodyX && headY === bodyY) {
+        console.log("self collision at", headX, headY);
+        return true;
+      }
+    }
+    return false;
+  }
+
   private move() {
     console.log("move", this.getDirection());
     // consume direciton queue
@@ -115,12 +132,18 @@ export class Snake {
     this.body.push([tailBodyX, tailBodyY]);
   }
 
+  /**
+   * @param dt delta frame time
+   * @param world world object for border detection
+   * @returns if update was successfull -> snake did not collide with its own body
+   */
   public update(dt: number, world: World) {
     if (this.directionQueue.size() >= 1) {
       this.velocityTicker += dt * this.velocity;
       while (this.velocityTicker >= 1000) {
         this.move();
         this.velocityTicker -= 1000;
+        if (this.selfCollision()) return false;
       }
       // this line should be redundant
       this.velocityTicker = this.velocityTicker % 1000;
@@ -138,6 +161,7 @@ export class Snake {
         this.accelerationTicker -= 1000;
       }
     }
+    return true;
   }
 
   private fillGridCell(ctx: CanvasRenderingContext2D, gridX: number, gridY: number) {
