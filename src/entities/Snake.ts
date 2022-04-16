@@ -18,10 +18,19 @@ const iligalDirectionTurns = new Map([
 export class Snake {
   private body: number[][]; // position of snake body in grid cells
   private readonly directionQueue = new Queue<Direction>();
-  private moveTicker = 0; // calculate movement as accululator, on which frame (-interval) it should move
-  private speed = 1; // 1 = 1 cell/second; 2 = 2 cells/second
 
-  // TODO: refactor world parameter
+  private growTicker = 0; // when to grow, accumulates delta frame time
+  private growRate = 1; // (acc multiplier) how fast goal is reached, grow-increase/second
+
+  // Idea: add acceleration on 'harder levers'
+  private accelerationTicker = 0; // when to increase acceleration, accumulates delta frame time
+  private acceleration = 0.125;       // increase speed by one every 8 seconds
+
+  // linear acceleration by increasing velocity on a set intervall, with the acceleration var we could
+  // multiply by a fraction to decrease the delta intervall
+  private velocityTicker = 0; // when to increase velocity, accumulates delta frame time
+  private velocity = 0; // velocity of snake, cells/second, 1 -> 1 cell per second, 2 -> 2 cells per second
+
   constructor(x: number, y: number) {
     this.body = [[x, y]];
   }
@@ -50,12 +59,12 @@ export class Snake {
     return this.body;
   }
 
-  public getSpeed() {
-    return this.speed;
+  public getVelocity() {
+    return this.velocity;
   }
 
-  public setSpeed(speed: number) {
-    this.speed = speed;
+  public setVelocity(velocity: number) {
+    this.velocity = velocity;
   }
 
   private move() {
@@ -106,15 +115,28 @@ export class Snake {
     this.body.push([tailBodyX, tailBodyY]);
   }
 
-  public update(world: World) {
+  public update(dt: number, world: World) {
     if (this.directionQueue.size() >= 1) {
-      this.moveTicker += window.snake.settings.msPerUpdate * this.speed;
-      // snake moves this.speed * grid-cell/second
-      while (this.moveTicker >= 1000) {
+      this.velocityTicker += dt * this.velocity;
+      while (this.velocityTicker >= 1000) {
         this.move();
-        this.moveTicker -= 1000;
+        this.velocityTicker -= 1000;
       }
-      this.moveTicker = this.moveTicker % 1000;
+      // this line should be redundant
+      this.velocityTicker = this.velocityTicker % 1000;
+
+      this.growTicker += dt * this.growRate;
+      while (this.growTicker >= 1000) {
+        this.grow();
+        this.growTicker -= 1000;
+      }
+
+      // when to increase the velocity
+      this.accelerationTicker += dt * this.acceleration;
+      while (this.accelerationTicker >= 1000) {
+        this.velocity += 1;
+        this.accelerationTicker -= 1000;
+      }
     }
   }
 
@@ -138,7 +160,7 @@ export class Snake {
         ctx.textBaseline = "middle";
         ctx.font = "10px sans-serif";
         ctx.fillText(
-          this.getSpeed().toString(),
+          this.getVelocity().toString(),
           cellSize * x + cellSize / 2,
           cellSize * y + cellSize / 2
         );

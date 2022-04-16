@@ -9,7 +9,9 @@ export class PlayState implements StateMachineState {
     this.world = world;
 
     this.entities.push(new Snake(0, 0));
-    this.entities[0].setSpeed(5);
+    this.entities[0].setVelocity(5);
+
+    window.snake.debugger?.initStateSource(this.entities[0])
   }
   enter(): void {
     console.log("Enter PlayState!");
@@ -18,7 +20,7 @@ export class PlayState implements StateMachineState {
 
   update(dt: number): void {
     // update snake state
-    this.entities[0].update(this.world);
+    this.entities[0].update(dt, this.world);
 
     // check world board collision
     const head = this.entities[0].getHead();

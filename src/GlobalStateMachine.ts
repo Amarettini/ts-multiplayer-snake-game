@@ -6,13 +6,13 @@ import { ConstructorStates, StateMachine } from "./StateMachine";
  * and a global debugger to log metrics on a overlay canvas.
  */
 export class GlobalStateMachine<T extends string> extends StateMachine<T> {
-  private _debugger: GameDebugger;
+  private _debugger!: GameDebugger;
   private debugSnapshotData: DebugSnapshotData | null;
   private showDebugger: boolean;
 
   constructor(states: ConstructorStates<T>, gameDebugger: GameDebugger) {
     super(states);
-    this._debugger = gameDebugger;
+    this.setDebugger(gameDebugger)
     this.debugSnapshotData = null;
     this.showDebugger = false;
   }

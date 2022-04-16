@@ -1,11 +1,11 @@
 import { initializeCanvas } from ".";
+import { Snake } from "./entities/Snake";
 
 export interface DebugSnapshotData {
   msPerUpdate: number;
   totalElapsedTime: number;
   elapsedTime: number;
   frame: number;
-  currentSnakeSpeed: number;
   frameCalcTime: number;
   updateCyclesPerFrame: number;
   gameStart: number | null;
@@ -23,6 +23,9 @@ class GameDebugger {
   private lastFrameLoggedAt = Date.now();
   private elDebug: HTMLElement;
   private elDebugLogger: HTMLElement;
+
+  // TODO: implement some kind of entity container or ref for general purpose
+  private snake?: Snake;
 
   constructor(options?: GameDebuggerOptions) {
     const canvasOptios = initializeCanvas(300, 250, options ? options.canvas : undefined);
@@ -45,6 +48,7 @@ class GameDebugger {
     this.hide();
 
     // Elements for rendering statistics and debug data to DOM
+    // todo: to be removed
     this.elDebug = document.getElementById("debug")!;
     this.elDebugLogger = document.getElementById("debugLogger")!;
   }
@@ -109,6 +113,11 @@ class GameDebugger {
     this.elDebugLogger.prepend(frameLog);
   }
 
+  // todo: should be refactored to be more general towards entities
+  public initStateSource(stateRef: any) {
+    this.snake = stateRef;
+  }
+
   public render(data: DebugSnapshotData) {
     const frameLogLine = this.createFrameLog(data.frame, data.frameCalcTime);
     const debugText =
@@ -127,7 +136,10 @@ class GameDebugger {
       "\n" +
       "Snake:\n" +
       "  Current speed:        " +
-      data.currentSnakeSpeed +
+      this.snake?.getVelocity() +
+      "\n" +
+      "  Current size:         " +
+      this.snake?.getBody().length +
       "\n" +
       "\n" +
       "Per Frame:\n" +

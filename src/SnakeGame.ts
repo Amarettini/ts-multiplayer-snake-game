@@ -93,7 +93,6 @@ export class SnakeGame {
       elapsedTime,
       msPerUpdate: window.snake.settings.msPerUpdate,
       frame: this.framesCounter,
-      currentSnakeSpeed: 0,
       frameCalcTime: window.performance.now() - currentTime,
       updateCyclesPerFrame: updatesCycles,
       gameStart: null,

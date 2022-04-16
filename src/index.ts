@@ -5,7 +5,7 @@ window.snake = {
   currentGame: null,
   debugger: null,
   settings: {
-    msPerUpdate: 34,
+    msPerUpdate: 6,
     width: 40,
     height: 40,
     cellSize: 20
